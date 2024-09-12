@@ -1,0 +1,537 @@
+<html><head><base href="https://websim.ai/ai-llm-chat">
+<title>ZEN AI Fusional AI Dashboard</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    font-size: 16px;
+  }
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    padding: 20px;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+  .logo {
+    max-width: 200px;
+    height: auto;
+  }
+  .chat-panel {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    padding: 20px;
+  }
+  .chat-container {
+    height: 60vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  .input-container {
+    display: flex;
+  }
+  #user-input {
+    flex-grow: 1;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px 0 0 4px;
+    font-size: 16px;
+  }
+  #send-button {
+    padding: 12px 24px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  #send-button:hover {
+    background-color: #45a049;
+  }
+  .message {
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 4px;
+    word-wrap: break-word;
+  }
+  .user-message {
+    background-color: #e1f5fe;
+    text-align: right;
+  }
+  .ai-message {
+    background-color: #f0f4c3;
+  }
+  .settings-panel {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-top: 20px;
+    padding: 20px;
+  }
+  select, input[type="number"], input[type="text"], textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  .settings-group h2 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+  }
+  .settings-group-content {
+    display: none;
+  }
+  .settings-group.expanded .settings-group-content {
+    display: block;
+  }
+  #new-conversation, #memory-bank-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+  }
+  #new-conversation:hover, #memory-bank-button:hover {
+    background-color: #45a049;
+  }
+  .collapsible {
+    background-color: #eee;
+    color: #444;
+    cursor: pointer;
+    padding: 18px;
+    width: 100%;
+    border: none;
+    text-align: left;
+    outline: none;
+    font-size: 15px;
+    transition: 0.4s;
+  }
+  .active, .collapsible:hover {
+    background-color: #ccc;
+  }
+  .content {
+    padding: 0 18px;
+    display: none;
+    overflow: hidden;
+    background-color: #f1f1f1;
+  }
+  .copy-button {
+    background-color: #008CBA;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  .compare-container {
+    display: flex;
+    justify-content: space-between;
+  }
+  .compare-panel {
+    width: 48%;
+  }
+  .compare-chat-container {
+    height: 50vh;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  #compare-checkbox {
+    margin-right: 10px;
+  }
+  .compare-label {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <img src="https://i.imgur.com/xfMdqOW.png" alt="ZEN AI Fusional AI Dashboard Logo" class="logo">
+    <h1>ZEN AI Fusional AI Dashboard</h1>
+  </div>
+  
+  <div class="settings-panel">
+    <div class="compare-label">
+      <input type="checkbox" id="compare-checkbox">
+      <label for="compare-checkbox">Compare Models</label>
+    </div>
+    <div id="single-model-select" class="model-select">
+      <select id="model-select">
+        <option value="cognitivecomputations/dolphin-2.9.1-llama-3-70b">Dolphin-2.9.1-llama-3-70b</option>
+        <option value="google/gemma-1.1-7b-it">Gemma-1.1-7B-IT</option>
+        <option value="google/gemma-2-27b-it">Gemma-2-27B-IT</option>
+        <option value="google/gemma-2-9b-it">Gemma-2-9B-IT</option>
+        <option value="lizpreciatior/lzlv_70b_fp16_hf">lzlv_70b_fp16_hf</option>
+        <option value="llava-hf/llava-1.5-7b-hf">LLaVA-1.5-7B-HF</option>
+        <option value="meta-llama/Meta-Llama-3-70B-Instruct">Llama-3-70B-Instruct</option>
+        <option value="meta-llama/Meta-Llama-3-8B-Instruct">Llama-3-8B-Instruct</option>
+        <option value="meta-llama/Meta-Llama-3.1-405B-Instruct">Llama-3.1-405B-Instruct</option>
+        <option value="microsoft/Phi-3-medium-4k-instruct">Phi-3-medium-4k</option>
+        <option value="microsoft/WizardLM-2-7B">WizardLM-2-7B</option>
+        <option value="microsoft/WizardLM-2-8x22B">WizardLM-2-8x22B</option>
+        <option value="mistralai/Mistral-7B-Instruct-v0.3">Mistral-7B-Instruct-v0.3</option>
+        <option value="mistralai/Mixtral-8x22B-Instruct-v0.1">Mixtral-8x22B-Instruct</option>
+        <option value="nvidia/Nemotron-4-340B-Instruct">Nemotron-4-340B</option>
+        <option value="openchat/openchat-3.6-8b">OpenChat-3.6-8B</option>
+        <option value="Qwen/Qwen2-72B-Instruct">Qwen2-72B-Instruct</option>
+        <option value="openai/gpt-3.5-turbo">GPT-3.5-Turbo</option>
+        <option value="openai/gpt-4">GPT-4</option>
+        <option value="openai/gpt-4-32k">GPT-4-32K</option>
+        <option value="openai/gpt-4-1106-preview">GPT-4-Turbo</option>
+        <option value="anthropic/claude-2.1">Claude 2.1</option>
+        <option value="anthropic/claude-3-opus-20240229">Claude 3 Opus</option>
+        <option value="anthropic/claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+        <option value="anthropic/claude-3-haiku-20240307">Claude 3 Haiku</option>
+      </select>
+    </div>
+    <div id="compare-model-select" class="model-select" style="display: none;">
+      <div class="compare-container">
+        <div class="compare-panel">
+          <select id="model-select-1" class="model-select">
+            <!-- Options same as above -->
+          </select>
+        </div>
+        <div class="compare-panel">
+          <select id="model-select-2" class="model-select">
+            <!-- Options same as above -->
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div id="single-chat-panel" class="chat-panel">
+    <div id="chat-container" class="chat-container"></div>
+    <div class="input-container">
+      <input type="text" id="user-input" placeholder="Type your message here...">
+      <button id="send-button">Send</button>
+    </div>
+  </div>
+  
+  <div id="compare-chat-panel" class="chat-panel" style="display: none;">
+    <div class="compare-container">
+      <div class="compare-panel">
+        <div id="chat-container-1" class="compare-chat-container"></div>
+      </div>
+      <div class="compare-panel">
+        <div id="chat-container-2" class="compare-chat-container"></div>
+      </div>
+    </div>
+    <div class="input-container">
+      <input type="text" id="compare-user-input" placeholder="Type your message here...">
+      <button id="compare-send-button">Send</button>
+    </div>
+  </div>
+  
+  <div class="settings-panel">
+    <button class="collapsible">Model Parameters</button>
+    <div class="content">
+      <label for="temperature">Temperature:</label>
+      <input type="number" id="temperature" min="0" max="2" step="0.1" value="0.7">
+      
+      <label for="top-p">Top P:</label>
+      <input type="number" id="top-p" min="0" max="1" step="0.1" value="0.9">
+      
+      <label for="max-tokens">Max Tokens:</label>
+      <input type="number" id="max-tokens" min="1" max="100000" value="2048">
+      
+      <label for="presence-penalty">Presence Penalty:</label>
+      <input type="number" id="presence-penalty" min="-2" max="2" step="0.1" value="0">
+      
+      <label for="frequency-penalty">Frequency Penalty:</label>
+      <input type="number" id="frequency-penalty" min="-2" max="2" step="0.1" value="0">
+      
+      <label for="repetition-penalty">Repetition Penalty:</label>
+      <input type="number" id="repetition-penalty" min="0.1" max="2" step="0.1" value="1">
+    </div>
+    
+    <button class="collapsible">Advanced Settings</button>
+    <div class="content">
+      <label for="system-message">System Message:</label>
+      <textarea id="system-message" rows="3" placeholder="Enter system message"></textarea>
+      
+      <label for="stop-sequences">Stop Sequences:</label>
+      <input type="text" id="stop-sequences" placeholder="Enter stop sequences (comma-separated)">
+      
+      <label for="context-window">Context Window:</label>
+      <input type="number" id="context-window" min="1" max="100000" value="4096">
+      
+      <label for="top-k">Top K:</label>
+      <input type="number" id="top-k" min="1" max="100" value="50">
+      
+      <label for="prompt-template">Prompt Template:</label>
+      <textarea id="prompt-template" rows="3" placeholder="Enter prompt template"></textarea>
+    </div>
+    
+    <button id="new-conversation">New Conversation</button>
+    <button id="memory-bank-button">Memory Bank</button>
+  </div>
+</div>
+
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const userInput = document.getElementById('user-input');
+  const sendButton = document.getElementById('send-button');
+  const modelSelect = document.getElementById('model-select');
+  const temperatureInput = document.getElementById('temperature');
+  const topPInput = document.getElementById('top-p');
+  const maxTokensInput = document.getElementById('max-tokens');
+  const presencePenaltyInput = document.getElementById('presence-penalty');
+  const frequencyPenaltyInput = document.getElementById('frequency-penalty');
+  const repetitionPenaltyInput = document.getElementById('repetition-penalty');
+  const systemMessageInput = document.getElementById('system-message');
+  const stopSequencesInput = document.getElementById('stop-sequences');
+  const contextWindowInput = document.getElementById('context-window');
+  const topKInput = document.getElementById('top-k');
+  const promptTemplateInput = document.getElementById('prompt-template');
+  const newConversationButton = document.getElementById('new-conversation');
+  const memoryBankButton = document.getElementById('memory-bank-button');
+  const compareCheckbox = document.getElementById('compare-checkbox');
+  const singleModelSelect = document.getElementById('single-model-select');
+  const compareModelSelect = document.getElementById('compare-model-select');
+  const modelSelect1 = document.getElementById('model-select-1');
+  const modelSelect2 = document.getElementById('model-select-2');
+  const singleChatPanel = document.getElementById('single-chat-panel');
+  const compareChatPanel = document.getElementById('compare-chat-panel');
+  const chatContainer1 = document.getElementById('chat-container-1');
+  const chatContainer2 = document.getElementById('chat-container-2');
+  const compareUserInput = document.getElementById('compare-user-input');
+  const compareSendButton = document.getElementById('compare-send-button');
+
+  let conversationHistory = [];
+  let conversationHistory1 = [];
+  let conversationHistory2 = [];
+  let currentConversationId = null;
+  let memoryBank = [];
+
+  function addMessage(container, content, isUser) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message');
+    messageDiv.classList.add(isUser ? 'user-message' : 'ai-message');
+    
+    const contentWrapper = document.createElement('div');
+    contentWrapper.classList.add('message-content');
+    contentWrapper.textContent = content;
+    messageDiv.appendChild(contentWrapper);
+    
+    if (!isUser) {
+      const copyButton = document.createElement('button');
+      copyButton.textContent = 'Copy';
+      copyButton.classList.add('copy-button');
+      copyButton.addEventListener('click', () => copyToClipboard(content));
+      messageDiv.appendChild(copyButton);
+    }
+    
+    container.appendChild(messageDiv);
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert('Copied to clipboard!');
+    }).catch(err => {
+      console.error('Failed to copy text: ', err);
+    });
+  }
+
+  async function sendMessage(userMessage, modelSelectElement, chatContainerElement, history) {
+    if (userMessage === '') return;
+
+    addMessage(chatContainerElement, userMessage, true);
+
+    const systemMessage = systemMessageInput.value.trim();
+    if (systemMessage && history.length === 0) {
+      history.push({ role: 'system', content: systemMessage });
+    }
+
+    history.push({ role: 'user', content: userMessage });
+
+    const selectedModel = modelSelectElement.value;
+    const temperature = parseFloat(temperatureInput.value);
+    const topP = parseFloat(topPInput.value);
+    const maxTokens = parseInt(maxTokensInput.value);
+    const presencePenalty = parseFloat(presencePenaltyInput.value);
+    const frequencyPenalty = parseFloat(frequencyPenaltyInput.value);
+    const repetitionPenalty = parseFloat(repetitionPenaltyInput.value);
+    const stopSequences = stopSequencesInput.value.split(',').map(s => s.trim()).filter(s => s);
+    const contextWindow = parseInt(contextWindowInput.value);
+    const topK = parseInt(topKInput.value);
+    const promptTemplate = promptTemplateInput.value.trim();
+
+    try {
+      let response;
+      if (selectedModel.startsWith('openai/') || selectedModel.startsWith('anthropic/')) {
+        const apiKey = 'YOURAPIKEY';
+        const apiUrl = selectedModel.startsWith('openai/') ? 'https://api.openai.com/v1/chat/completions' : 'https://api.anthropic.com/v1/chat/completions';
+        
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: selectedModel.split('/')[1],
+            messages: history,
+            temperature,
+            max_tokens: maxTokens,
+            top_p: topP,
+            frequency_penalty: frequencyPenalty,
+            presence_penalty: presencePenalty,
+            stop: stopSequences.length > 0 ? stopSequences : undefined,
+          }),
+        });
+      } else {
+        response = await fetch('https://api.deepinfra.com/v1/openai/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model: selectedModel,
+            messages: history,
+            temperature,
+            top_p: topP,
+            max_tokens: maxTokens,
+            presence_penalty: presencePenalty,
+            frequency_penalty: frequencyPenalty,
+            repetition_penalty: repetitionPenalty,
+            stop: stopSequences.length > 0 ? stopSequences : undefined,
+            context_window: contextWindow,
+            top_k: topK,
+            prompt_template: promptTemplate || undefined,
+          }),
+        });
+      }
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const data = await response.json();
+      const aiMessage = data.choices[0].message.content;
+
+      addMessage(chatContainerElement, aiMessage, false);
+      history.push({ role: 'assistant', content: aiMessage });
+
+      fetch('/log', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userMessage, aiMessage }),
+      });
+
+    } catch (error) {
+      console.error('Error:', error);
+      addMessage(chatContainerElement, 'Sorry, there was an error processing your request.', false);
+    }
+  }
+
+  function newConversation() {
+    currentConversationId = conversationHistory.length;
+    conversationHistory = [];
+    conversationHistory1 = [];
+    conversationHistory2 = [];
+    chatContainer.innerHTML = '';
+    chatContainer1.innerHTML = '';
+    chatContainer2.innerHTML = '';
+  }
+
+  sendButton.addEventListener('click', () => sendMessage(userInput.value, modelSelect, chatContainer, conversationHistory));
+  userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      sendMessage(userInput.value, modelSelect, chatContainer, conversationHistory);
+      userInput.value = '';
+    }
+  });
+
+  compareSendButton.addEventListener('click', async () => {
+    const userMessage = compareUserInput.value;
+    await sendMessage(userMessage, modelSelect1, chatContainer1, conversationHistory1);
+    await sendMessage(userMessage, modelSelect2, chatContainer2, conversationHistory2);
+    compareUserInput.value = '';
+  });
+  compareUserInput.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      const userMessage = compareUserInput.value;
+      await sendMessage(userMessage, modelSelect1, chatContainer1, conversationHistory1);
+      await sendMessage(userMessage, modelSelect2, chatContainer2, conversationHistory2);
+      compareUserInput.value = '';
+    }
+  });
+
+  newConversationButton.addEventListener('click', newConversation);
+
+  compareCheckbox.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      singleModelSelect.style.display = 'none';
+      compareModelSelect.style.display = 'block';
+      singleChatPanel.style.display = 'none';
+      compareChatPanel.style.display = 'block';
+    } else {
+      singleModelSelect.style.display = 'block';
+      compareModelSelect.style.display = 'none';
+      singleChatPanel.style.display = 'block';
+      compareChatPanel.style.display = 'none';
+    }
+  });
+
+  const coll = document.getElementsByClassName("collapsible");
+  for (let i = 0; i < coll.length; i++) {
+    coll[i].addEventListener("click", function() {
+      this.classList.toggle("active");
+      const content = this.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    });
+  }
+
+  // Initialize
+  newConversation();
+  systemMessageInput.value = "You are an AI assistant capable of writing code. When asked for code, provide properly formatted and indented code within triple backticks.";
+
+  // Populate model options for compare selects
+  const modelOptions = modelSelect.innerHTML;
+  modelSelect1.innerHTML = modelOptions;
+  modelSelect2.innerHTML = modelOptions;
+</script>
+</body>
+</html>
