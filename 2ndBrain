@@ -1,0 +1,645 @@
+<html><head><base href="https://www.example.com/secondbrain/"><title>Second Brain - AI-Powered Interactive Ideation</title><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
+:root {
+    --primary-color: #128C7E;
+    --secondary-color: #25D366;
+    --background-color: #ECE5DD;
+    --chat-background: #DCF8C6;
+    --text-color: #075E54;
+    --light-text: #7C8B95;
+    --border-radius: 20px;
+    --transition: all 0.3s ease;
+}
+
+body, html {
+    font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: white;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+
+.header {
+    background-color: var(--primary-color);
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+}
+
+h1 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+#chat-interface {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#chat-messages {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background-color: var(--background-color);
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23ECE5DD"/><path d="M0 0L50 50L100 0ZM100 100L50 50L0 100Z" fill="%23E2DAD3"/></svg>');
+    background-size: 200px;
+}
+
+.message {
+    max-width: 80%;
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    border-radius: var(--border-radius);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    position: relative;
+    animation: messageAppear 0.3s ease-out;
+}
+
+@keyframes messageAppear {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-message {
+    background-color: var(--chat-background);
+    color: var(--text-color);
+    align-self: flex-end;
+    margin-left: auto;
+    border-top-right-radius: 0;
+}
+
+.entity-message {
+    background-color: white;
+    color: var(--text-color);
+    align-self: flex-start;
+    border-top-left-radius: 0;
+}
+
+.entity-info {
+    font-size: 0.8rem;
+    color: var(--light-text);
+    margin-bottom: 0.3rem;
+    display: flex;
+    align-items: center;
+}
+
+.entity-name {
+    font-weight: bold;
+    margin-right: 0.5rem;
+}
+
+.entity-role {
+    padding: 0.2rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+#user-input {
+    display: flex;
+    padding: 1rem;
+    background-color: white;
+    border-top: 1px solid #E2E2E2;
+}
+
+#idea-input {
+    flex-grow: 1;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 25px;
+    margin-right: 0.8rem;
+    font-size: 1rem;
+    background-color: var(--background-color);
+    transition: var(--transition);
+}
+
+#idea-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--secondary-color);
+}
+
+.action-button {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 1rem;
+    font-weight: bold;
+}
+
+.action-button:hover {
+    background-color: #1EA952;
+    transform: scale(1.05);
+}
+
+.action-button:disabled {
+    background-color: var(--light-text);
+    cursor: not-allowed;
+    transform: none;
+}
+
+#cooldown-timer {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--light-text);
+    margin-top: 0.5rem;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    width: 90%;
+    max-width: 900px;
+    height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.entity-lists-container {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+}
+
+.entity-list-column {
+    flex: 1;
+    padding: 0 1rem;
+    overflow-y: auto;
+}
+
+.entity-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.entity-card {
+    background-color: var(--background-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.entity-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.entity-card.selected {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.entity-card h3 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.entity-card p {
+    font-size: 0.9rem;
+    margin: 0.5rem 0;
+}
+
+#selection-info {
+    text-align: center;
+    margin-top: 1rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+}
+
+.dim-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+#user-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+}
+
+.typing-indicator span {
+    height: 8px;
+    width: 8px;
+    background-color: var(--light-text);
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    animation: typing 1s infinite;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+    100% { transform: translateY(0); }
+}
+
+.header-actions {
+    display: flex;
+    gap: 0.8rem;
+}
+
+</style></head><body>
+<div class="container">
+    <div class="header">
+        <h1>Second Brain - AI-Powered Interactive Ideation</h1>
+        <div class="header-actions">
+            <button id="new-conversation" class="action-button">New Conversation</button>
+            <button id="save-doc" class="action-button">Save as DOC</button>
+        </div>
+    </div>
+    <div id="chat-interface">
+        <div id="chat-messages"></div>
+        <div id="user-input">
+            <input type="text" id="idea-input" placeholder="Share your idea...">
+            <div id="user-actions">
+                <button id="submit-idea" class="action-button">Ideate</button>
+                <button id="pause-resume" class="action-button">Pause</button>
+            </div>
+        </div>
+        <div id="cooldown-timer"></div>
+    </div>
+</div>
+
+<div id="dim-overlay" class="dim-overlay"></div>
+
+<div id="entity-selection-modal" class="modal">
+    <div class="modal-content">
+        <h2>Select Participants</h2>
+        <div class="entity-lists-container">
+            <div class="entity-list-column">
+                <h3>Topic-Related Entities</h3>
+                <div id="topic-entity-list" class="entity-list"></div>
+            </div>
+            <div class="entity-list-column">
+                <h3>Archetype Entities</h3>
+                <div id="archetype-entity-list" class="entity-list"></div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <div id="selection-info"></div>
+            <button id="start-conversation" class="action-button">Start Conversation</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<script>
+const chatMessages = document.getElementById('chat-messages');
+const ideaInput = document.getElementById('idea-input');
+const submitIdea = document.getElementById('submit-idea');
+const pauseResumeButton = document.getElementById('pause-resume');
+const saveDocButton = document.getElementById('save-doc');
+const newConversationButton = document.getElementById('new-conversation');
+const cooldownTimer = document.getElementById('cooldown-timer');
+const entitySelectionModal = document.getElementById('entity-selection-modal');
+const topicEntityList = document.getElementById('topic-entity-list');
+const archetypeEntityList = document.getElementById('archetype-entity-list');
+const startConversationButton = document.getElementById('start-conversation');
+const selectionInfo = document.getElementById('selection-info');
+const dimOverlay = document.getElementById('dim-overlay');
+
+let cooldownTime = 0;
+let conversationActive = false;
+let lastEntityIndex = -1;
+let isPaused = false;
+let messageQueue = [];
+const MAX_MESSAGES_PER_ENTITY = 5;
+let selectedTopicEntities = [];
+let selectedArchetypeEntities = [];
+const MAX_TOTAL_ENTITIES = 5;
+const MAX_ARCHETYPE_ENTITIES = 2;
+
+function getRandomColor() {
+    const hue = Math.floor(Math.random() * 360);
+    return `hsl(${hue}, 70%, 50%)`;
+}
+
+function addMessage(content, isUser = false, entity = null) {
+    const messageDiv = document.createElement('div');
+    messageDiv.classList.add('message', isUser ? 'user-message' : 'entity-message');
+    
+    if (entity) {
+        const roleColor = entity.roleColor || getRandomColor();
+        entity.roleColor = roleColor;
+        messageDiv.innerHTML = `
+            <div class="entity-info">
+                <span class="entity-name">${entity.name}</span>
+                <span class="entity-role" style="background-color: ${roleColor}; color: ${getContrastColor(roleColor)};">${entity.role}</span>
+            </div>
+            ${content.split('\n').map(paragraph => `<p>${paragraph}</p>`).join('')}
+        `;
+    } else {
+        messageDiv.textContent = content;
+    }
+    
+    if (isPaused && !isUser) {
+        messageQueue.push(messageDiv);
+    } else {
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+function getContrastColor(hexColor) {
+    const r = parseInt(hexColor.substr(1, 2), 16);
+    const g = parseInt(hexColor.substr(3, 2), 16);
+    const b = parseInt(hexColor.substr(5, 2), 16);
+    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
+    return (yiq >= 128) ? 'black' : 'white';
+}
+
+function addTypingIndicator() {
+    const indicatorDiv = document.createElement('div');
+    indicatorDiv.classList.add('message', 'entity-message', 'typing-indicator');
+    indicatorDiv.innerHTML = '<span></span><span></span><span></span>';
+    chatMessages.appendChild(indicatorDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    return indicatorDiv;
+}
+
+async function fetchAIEntities(idea) {
+    try {
+        const response = await axios.post('/api/real_entities_AI', { idea });
+        return response.data.map(entity => ({ ...entity, messageCount: 0, roleColor: getRandomColor() }));
+    } catch (error) {
+        console.error('Error fetching AI entities:', error);
+        return [];
+    }
+}
+
+async function fetchArchetypeEntities() {
+    try {
+        const response = await axios.get('/api/Entity_Archetype');
+        return response.data.map(entity => ({ ...entity, messageCount: 0, roleColor: getRandomColor() }));
+    } catch (error) {
+        console.error('Error fetching archetype entities:', error);
+        return [];
+    }
+}
+
+function displayEntitySelection(topicEntities, archetypeEntities) {
+    topicEntityList.innerHTML = '';
+    archetypeEntityList.innerHTML = '';
+    
+    function createEntityCard(entity, list, isArchetype) {
+        const entityCard = document.createElement('div');
+        entityCard.classList.add('entity-card');
+        entityCard.innerHTML = `
+            <h3>${entity.name}</h3>
+            <p><strong>Role:</strong> <span style="background-color: ${entity.roleColor}; color: ${getContrastColor(entity.roleColor)}; padding: 2px 5px; border-radius: 10px;">${entity.role}</span></p>
+            <p>${entity.description}</p>
+        `;
+        entityCard.addEventListener('click', () => {
+            const selectedEntities = isArchetype ? selectedArchetypeEntities : selectedTopicEntities;
+            const otherSelectedEntities = isArchetype ? selectedTopicEntities : selectedArchetypeEntities;
+            
+            if (entityCard.classList.contains('selected')) {
+                entityCard.classList.remove('selected');
+                const index = selectedEntities.findIndex(e => e.id === entity.id);
+                if (index !== -1) selectedEntities.splice(index, 1);
+            } else {
+                if (isArchetype && selectedArchetypeEntities.length >= MAX_ARCHETYPE_ENTITIES) {
+                    alert(`You can only select up to ${MAX_ARCHETYPE_ENTITIES} archetype entities.`);
+                    return;
+                }
+                if (selectedEntities.length + otherSelectedEntities.length >= MAX_TOTAL_ENTITIES) {
+                    alert(`You can only select up to ${MAX_TOTAL_ENTITIES} entities in total.`);
+                    return;
+                }
+                entityCard.classList.add('selected');
+                selectedEntities.push(entity);
+            }
+            updateSelectionInfo();
+        });
+        list.appendChild(entityCard);
+    }
+    
+    topicEntities.forEach(entity => createEntityCard(entity, topicEntityList, false));
+    archetypeEntities.forEach(entity => createEntityCard(entity, archetypeEntityList, true));
+    
+    entitySelectionModal.style.display = 'block';
+    dimOverlay.style.display = 'block';
+    updateSelectionInfo();
+}
+
+function updateSelectionInfo() {
+    const totalSelected = selectedTopicEntities.length + selectedArchetypeEntities.length;
+    selectionInfo.textContent = `Selected: ${totalSelected}/${MAX_TOTAL_ENTITIES} (${selectedArchetypeEntities.length}/${MAX_ARCHETYPE_ENTITIES} archetypes)`;
+    startConversationButton.disabled = totalSelected === 0;
+}
+
+async function processIdea(idea) {
+    const typingIndicator = addTypingIndicator();
+    try {
+        const [aiEntities, archetypeEntities] = await Promise.all([
+            fetchAIEntities(idea),
+            fetchArchetypeEntities()
+        ]);
+        chatMessages.removeChild(typingIndicator);
+        displayEntitySelection(aiEntities, archetypeEntities);
+    } catch (error) {
+        chatMessages.removeChild(typingIndicator);
+        addMessage("Apologies, there seems to be a technical hiccup. Let's reconvene shortly.", false, { name: "System", role: "Coordinator" });
+    }
+}
+
+async function continueConversation(entities, context) {
+    while (conversationActive) {
+        if (isPaused) {
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            continue;
+        }
+
+        const activeEntities = entities.filter(e => e.messageCount < MAX_MESSAGES_PER_ENTITY);
+        if (activeEntities.length === 0) {
+            addMessage("We've covered quite a bit of ground here. Shall we explore a new avenue?", false, { name: "System", role: "Coordinator" });
+            conversationActive = false;
+            break;
+        }
+
+        const entityIndex = (lastEntityIndex + 1) % activeEntities.length;
+        const entity = activeEntities[entityIndex];
+        lastEntityIndex = entityIndex;
+
+        const entityTypingIndicator = addTypingIndicator();
+        await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+        chatMessages.removeChild(entityTypingIndicator);
+
+        try {
+            const aiResponse = await axios.post('/api/entity_response', { 
+                entityId: entity.id, 
+                context: context,
+                previousResponses: entities.map(e => e.lastResponse).filter(r => r),
+                role: entity.role,
+                personality: entity.personality
+            });
+            entity.lastResponse = aiResponse.data.response;
+            entity.messageCount++;
+            addMessage(entity.lastResponse, false, entity);
+        } catch (error) {
+            console.error('Error fetching entity response:', error);
+            addMessage("I need a moment to collect my thoughts. What are your views on this?", false, entity);
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        context = entities.map(e => e.lastResponse).join(' ');
+    }
+}
+
+function updateCooldownTimer() {
+    if (cooldownTime > 0) {
+        cooldownTimer.textContent = `Next idea in ${cooldownTime} seconds`;
+        cooldownTime--;
+        setTimeout(updateCooldownTimer, 1000);
+    } else {
+        cooldownTimer.textContent = '';
+        submitIdea.disabled = false;
+    }
+}
+
+function startNewConversation() {
+    chatMessages.innerHTML = '';
+    ideaInput.value = '';
+    submitIdea.textContent = 'Ideate';
+    conversationActive = false;
+    lastEntityIndex = -1;
+    isPaused = false;
+    messageQueue = [];
+    selectedTopicEntities = [];
+    selectedArchetypeEntities = [];
+    addMessage("Let's start a fresh conversation! What topic shall we explore today?", false, { name: "AI Guide", role: "Facilitator", roleColor: getRandomColor() });
+}
+
+submitIdea.addEventListener('click', async () => {
+    const idea = ideaInput.value.trim();
+    if (idea) {
+        addMessage(idea, true);
+        ideaInput.value = '';
+        submitIdea.disabled = true;
+        cooldownTime = 10;
+        updateCooldownTimer();
+        await processIdea(idea);
+    }
+});
+
+startConversationButton.addEventListener('click', () => {
+    const allSelectedEntities = [...selectedTopicEntities, ...selectedArchetypeEntities];
+    if (allSelectedEntities.length > 0) {
+        entitySelectionModal.style.display = 'none';
+        dimOverlay.style.display = 'none';
+        conversationActive = true;
+        continueConversation(allSelectedEntities, ideaInput.value.trim());
+        submitIdea.textContent = "Expand on this";
+    } else {
+        alert("Please select at least one participant.");
+    }
+});
+
+ideaInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !submitIdea.disabled) {
+        submitIdea.click();
+    }
+});
+
+pauseResumeButton.addEventListener('click', () => {
+    isPaused = !isPaused;
+    pauseResumeButton.textContent = isPaused ? 'Resume' : 'Pause';
+    if (!isPaused) {
+        addMessage("Let's pick up where we left off.", false, { name: "System", role: "Coordinator" });
+        while (messageQueue.length > 0) {
+            chatMessages.appendChild(messageQueue.shift());
+        }
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    } else {
+        addMessage("We're taking a brief intermission. Feel free to review the conversation so far.", false, { name: "System", role: "Coordinator" });
+    }
+});
+
+saveDocButton.addEventListener('click', () => {
+    const content = chatMessages.innerHTML;
+    const blob = new Blob([`<html><body>${content}</body></html>`], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+    saveAs(blob, 'second_brain_conversation.doc');
+});
+
+newConversationButton.addEventListener('click', () => {
+    startNewConversation();
+    processIdea("New conversation");
+});
+
+addMessage("Greetings! We're about to embark on an exhilarating journey of ideas. Share a captivating topic, and I'll introduce you to a diverse group of thinkers eager to explore it. You'll have the opportunity to select who joins our intellectual adventure, including some unique archetypes to spice up the conversation. What shall we delve into today?", false, { name: "AI Guide", role: "Facilitator", roleColor: getRandomColor() });
+</script></body></html>
