@@ -1,0 +1,392 @@
+<html><head><base href="https://hr-policy-generator.example.com/">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Policy Generator Masterpiece</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/js/select2.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.1.0-rc.0/css/select2.min.css" rel="stylesheet">
+<style>
+    body {
+        background: #f0f0f0;
+        font-family: 'Arial', sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    .container {
+        max-width: 900px;
+        margin: 40px auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        color: #1a5f7a;
+        border-bottom: 2px solid #1a5f7a;
+        padding-bottom: 10px;
+    }
+    h2 {
+        color: #2c3e50;
+    }
+    .form-group {
+        margin-bottom: 25px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    input[type="text"], select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 16px;
+    }
+    button {
+        background-color: #1a5f7a;
+        color: #ffffff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+        transition: background-color 0.3s ease;
+    }
+    button:hover {
+        background-color: #12465c;
+    }
+    #policyOutput {
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 20px;
+        white-space: pre-wrap;
+        font-family: 'Courier New', Courier, monospace;
+    }
+    .loading {
+        display: none;
+        text-align: center;
+        margin-top: 20px;
+    }
+    .loading svg {
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    .toggle-container {
+        display: flex;
+        background-color: #f0f0f0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 5px;
+    }
+    .toggle-container input[type="radio"] {
+        display: none;
+    }
+    .toggle-container label {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        background-color: #f0f0f0;
+        color: #333;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .toggle-container input[type="radio"]:checked + label {
+        background-color: #1a5f7a;
+        color: #ffffff;
+    }
+    #alterPolicy {
+        background-color: #2ecc71;
+        margin-left: 10px;
+    }
+    #alterPolicy:hover {
+        background-color: #27ae60;
+    }
+</style>
+</head>
+<body>
+    <div class="container">
+        <h1>HR Policy Generator Masterpiece</h1>
+        <p>Generate robust HR policies based on the latest SHRM guidelines and your company's specific needs.</p>
+        
+        <form id="policyForm">
+            <div class="form-group">
+                <label for="companyName">Company Name:</label>
+                <input type="text" id="companyName" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Organization Type:</label>
+                <div class="toggle-container">
+                    <input type="radio" id="orgTypeCorporation" name="orgType" value="corporation" checked>
+                    <label for="orgTypeCorporation">Corporation</label>
+                    <input type="radio" id="orgTypeNonProfit" name="orgType" value="nonprofit">
+                    <label for="orgTypeNonProfit">Non-Profit</label>
+                    <input type="radio" id="orgTypeGovernment" name="orgType" value="government">
+                    <label for="orgTypeGovernment">Government or Similar</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="policyType">Policy Type:</label>
+                <select id="policyType" required>
+                    <option value="">Select a policy type</option>
+                    <option value="aiEthics">AI Ethics Policy</option>
+                    <option value="aiDataUsage">AI Data Usage and Privacy Policy</option>
+                    <option value="aiWorkplaceIntegration">AI Workplace Integration Policy</option>
+                    <option value="aiDecisionMaking">AI-Assisted Decision Making Policy</option>
+                    <option value="attendance">Attendance Policy</option>
+                    <option value="codeOfConduct">Code of Conduct</option>
+                    <option value="diversityAndInclusion">Diversity and Inclusion Policy</option>
+                    <option value="remoteWork">Remote Work Policy</option>
+                    <option value="performanceManagement">Performance Management Policy</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="industryType">Industry:</label>
+                <select id="industryType" required>
+                    <option value="">Select your industry</option>
+                    <option value="technology">Technology</option>
+                    <option value="healthcare">Healthcare</option>
+                    <option value="finance">Finance</option>
+                    <option value="retail">Retail</option>
+                    <option value="manufacturing">Manufacturing</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="companySize">Company Size:</label>
+                <select id="companySize" required>
+                    <option value="">Select company size</option>
+                    <option value="small">Small (1-50 employees)</option>
+                    <option value="medium">Medium (51-250 employees)</option>
+                    <option value="large">Large (251-1000 employees)</option>
+                    <option value="enterprise">Enterprise (1000+ employees)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="locationBased">Location-based Policy:</label>
+                <select id="locationBased" required>
+                    <option value="">Select location type</option>
+                    <option value="singleState">Single State</option>
+                    <option value="multiState">Multi-State</option>
+                    <option value="international">International</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="customRequirements">Custom Requirements:</label>
+                <textarea id="customRequirements" rows="4" placeholder="Enter any specific requirements or considerations for your policy"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="documentUpload">Upload Related Documents:</label>
+                <input type="file" id="documentUpload" multiple>
+            </div>
+
+            <div class="form-group">
+                <label for="policyFormat">Policy Format:</label>
+                <select id="policyFormat" required>
+                    <option value="standard">Standard</option>
+                    <option value="detailed">Detailed</option>
+                    <option value="concise">Concise</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="legalJurisdiction">Legal Jurisdiction:</label>
+                <input type="text" id="legalJurisdiction" placeholder="e.g., California, USA">
+            </div>
+
+            <div class="form-group">
+                <label for="reviewCycle">Policy Review Cycle:</label>
+                <select id="reviewCycle" required>
+                    <option value="6months">Every 6 months</option>
+                    <option value="1year">Annually</option>
+                    <option value="2years">Every 2 years</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="aiConsiderations" style="display: none;">
+                <label for="aiModels">AI Models Used:</label>
+                <select id="aiModels" multiple>
+                    <option value="gpt3">GPT-3</option>
+                    <option value="gpt4">GPT-4</option>
+                    <option value="bert">BERT</option>
+                    <option value="custom">Custom Models</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="aiPurpose" style="display: none;">
+                <label for="aiPurposeInput">Primary AI Usage Purpose:</label>
+                <input type="text" id="aiPurposeInput">
+            </div>
+            
+            <button type="submit">Generate Policy</button>
+            <button id="alterPolicy" style="display:none;">Alter Policy</button>
+        </form>
+        
+        <div class="loading">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" fill="none" stroke="#3498db" stroke-width="10" r="35" stroke-dasharray="164.93361431346415 56.97787143782138">
+                    <animateTransform attributeName="transform" type="rotate" repeatCount="indefinite" dur="1s" values="0 50 50;360 50 50" keyTimes="0;1"></animateTransform>
+                </circle>
+            </svg>
+            <p>Generating your customized HR policy...</p>
+        </div>
+        
+        <div id="policyOutput"></div>
+        
+        <button id="downloadPDF" style="display:none;">Download as PDF</button>
+        <button id="downloadDOC" style="display:none;">Download as DOC</button>
+    </div>
+
+    <script>
+    $(document).ready(function() {
+        $('select').select2();
+
+        async function fetchLatestSHRMPolicies() {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    resolve({
+                        lastUpdated: "2023-05-15",
+                        policies: {
+                            aiEthics: "Guidelines on ethical AI use, including fairness, transparency, and accountability",
+                            aiDataUsage: "Protocols for data collection, storage, and usage in AI systems, complying with GDPR and CCPA",
+                            aiWorkplaceIntegration: "Best practices for integrating AI tools in the workplace, including employee training and support",
+                            aiDecisionMaking: "Framework for using AI in decision-making processes, ensuring human oversight and appeal mechanisms",
+                            attendance: "Updated guidelines on flexible work arrangements",
+                            codeOfConduct: "New section on social media usage",
+                            diversityAndInclusion: "Expanded protected characteristics",
+                            remoteWork: "Updated cybersecurity protocols for remote workers",
+                            performanceManagement: "Introduced continuous feedback model"
+                        }
+                    });
+                }, 1000);
+            });
+        }
+
+        async function generatePolicy(formData, shrmPolicies) {
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    let policyContent = `${formData.companyName} ${formData.policyType.replace(/([A-Z])/g, ' $1').trim()} Policy\n\n`;
+                    policyContent += `Last Updated: ${new Date().toDateString()}\n\n`;
+                    policyContent += `1. Purpose\nThis policy establishes comprehensive guidelines for ${formData.policyType.replace(/([A-Z])/g, ' $1').toLowerCase()} at ${formData.companyName}. It aims to ensure compliance with relevant laws, promote best practices, and foster a positive work environment.\n\n`;
+                    policyContent += `2. Scope\nThis policy applies to all employees, contractors, and stakeholders of ${formData.companyName}, a ${formData.orgType} organization operating in the ${formData.industryType} industry with approximately ${formData.companySize} employees.\n\n`;
+                    policyContent += `3. Policy Details\n`;
+                    policyContent += `${shrmPolicies.policies[formData.policyType]}\n\n`;
+                    policyContent += `4. Implementation\nThe Human Resources department is responsible for implementing this policy. All managers and supervisors are expected to enforce this policy consistently.\n\n`;
+
+                    if (formData.policyType.startsWith('ai')) {
+                        policyContent += `5. AI-Specific Considerations\n`;
+                        policyContent += `a) AI Models Used: ${formData.aiModels.join(', ')}\n`;
+                        policyContent += `b) Primary AI Usage Purpose: ${formData.aiPurpose}\n`;
+                        policyContent += `c) Data Handling: All AI operations must comply with our data protection and privacy policies.\n`;
+                        policyContent += `d) Ethical Considerations: AI use must align with our company's ethical standards and values.\n\n`;
+                        policyContent += `6. Legal and Ethical Implications\n`;
+                        policyContent += `This policy adheres to current AI regulations and ethical guidelines, including but not limited to data protection, fairness, and transparency principles. Regular audits will be conducted to ensure ongoing compliance.\n\n`;
+                    }
+
+                    policyContent += `7. ${formData.locationBased === 'international' ? 'International Considerations' : 'Location-Specific Guidelines'}\n`;
+                    policyContent += `This policy takes into account ${formData.locationBased} regulations and practices. Local legal requirements take precedence where applicable.\n\n`;
+                    policyContent += `8. Custom Requirements\n${formData.customRequirements || 'No specific custom requirements provided.'}\n\n`;
+                    policyContent += `9. Legal Jurisdiction\nThis policy is governed by the laws of ${formData.legalJurisdiction}. In case of any disputes, the courts of ${formData.legalJurisdiction} shall have exclusive jurisdiction.\n\n`;
+                    policyContent += `10. Compliance\nAll employees are expected to comply with this policy. Violations may result in disciplinary action, up to and including termination of employment.\n\n`;
+                    policyContent += `11. Review and Updates\nThis policy will be reviewed ${formData.reviewCycle} by the HR department in consultation with legal counsel. Updates will be made as necessary to reflect changes in law, technology advancements, industry best practices, and company needs.\n\n`;
+                    policyContent += `12. Training\n${formData.companyName} will provide regular training sessions to ensure all employees understand and can effectively implement this policy.\n\n`;
+                    policyContent += `13. Reporting Violations\nEmployees are encouraged to report any violations of this policy to their immediate supervisor or the HR department. ${formData.companyName} prohibits retaliation against any employee who reports a violation in good faith.\n\n`;
+                    policyContent += `For any questions or clarifications regarding this policy, please contact the HR department at hr@${formData.companyName.toLowerCase().replace(/\s/g, '')}.com.\n\n`;
+                    policyContent += `Disclaimer: This policy is generated based on current best practices and regulations. It is recommended to have this policy reviewed by legal counsel before implementation.`;
+                    
+                    resolve(policyContent);
+                }, 2000);
+            });
+        }
+
+        $('#policyForm').on('submit', async function(e) {
+            e.preventDefault();
+            $('.loading').show();
+            $('#policyOutput').empty();
+            $('#downloadPDF, #downloadDOC, #alterPolicy').hide();
+
+            const formData = {
+                companyName: $('#companyName').val(),
+                orgType: $('input[name="orgType"]:checked').val(),
+                policyType: $('#policyType').val(),
+                industryType: $('#industryType').val(),
+                companySize: $('#companySize').val(),
+                locationBased: $('#locationBased').val(),
+                customRequirements: $('#customRequirements').val(),
+                legalJurisdiction: $('#legalJurisdiction').val(),
+                reviewCycle: $('#reviewCycle').val(),
+                aiModels: $('#aiModels').val() || [],
+                aiPurpose: $('#aiPurposeInput').val()
+            };
+
+            try {
+                const shrmPolicies = await fetchLatestSHRMPolicies();
+                const generatedPolicy = await generatePolicy(formData, shrmPolicies);
+                $('#policyOutput').text(generatedPolicy);
+                $('#downloadPDF, #downloadDOC, #alterPolicy').show();
+            } catch (error) {
+                $('#policyOutput').text('An error occurred while generating the policy. Please try again.');
+            } finally {
+                $('.loading').hide();
+            }
+        });
+
+        $('#downloadPDF').on('click', function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const policyContent = $('#policyOutput').text();
+            
+            doc.setFontSize(12);
+            const splitText = doc.splitTextToSize(policyContent, 180);
+            doc.text(splitText, 15, 15);
+            
+            doc.save(`${$('#companyName').val()}_${$('#policyType').val()}_Policy.pdf`);
+        });
+
+        $('#downloadDOC').on('click', function() {
+            const policyContent = $('#policyOutput').text();
+            const blob = new Blob([policyContent], { type: 'application/msword' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `${$('#companyName').val()}_${$('#policyType').val()}_Policy.doc`;
+            link.click();
+            URL.revokeObjectURL(link.href);
+        });
+
+        $('#policyType').on('change', function() {
+            if ($(this).val().startsWith('ai')) {
+                $('#aiConsiderations, #aiPurpose').show();
+            } else {
+                $('#aiConsiderations, #aiPurpose').hide();
+            }
+        });
+
+        function alterPolicy() {
+            const currentPolicy = $('#policyOutput').text();
+            const alteredPolicy = prompt("Please enter your modifications to the policy:", currentPolicy);
+            if (alteredPolicy !== null) {
+                $('#policyOutput').text(alteredPolicy);
+            }
+        }
+
+        $('#alterPolicy').on('click', alterPolicy);
+    });
+    </script>
+</body>
+</html>
