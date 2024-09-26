@@ -1,0 +1,714 @@
+<html><head><base href="https://nearvidia.com/"><title>NEARVIDIA Ultimate Roulette Experience</title>
+<style>
+body {
+    background: linear-gradient(45deg, #000, #1a1a1a);
+    color: #0f0;
+    font-family: 'Roboto', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.container {
+    text-align: center;
+    max-width: 1400px;
+    padding: 20px;
+}
+
+h1 {
+    font-size: 4em;
+    text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes glow {
+    from { text-shadow: 0 0 10px #0f0, 0 0 20px #0f0, 0 0 30px #0f0; }
+    to { text-shadow: 0 0 20px #0f0, 0 0 30px #0f0, 0 0 40px #0f0, 0 0 50px #0f0; }
+}
+
+#game-area {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+#roulette-wheel {
+    width: 500px;
+    height: 500px;
+    position: relative;
+    margin: 20px;
+}
+
+#wheel {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    transition: transform 8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow: 0 0 30px rgba(15, 255, 15, 0.5);
+}
+
+#ball {
+    width: 25px;
+    height: 25px;
+    background: radial-gradient(circle at 30% 30%, #fff, #ccc);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transition: transform 8s cubic-bezier(0.25, 0.1, 0.25, 1);
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+#betting-board {
+    display: grid;
+    grid-template-columns: repeat(14, 1fr);
+    gap: 2px;
+    margin: 20px;
+    background: #1e4d2b;
+    padding: 15px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(15, 255, 15, 0.3);
+}
+
+.bet-spot {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.3s;
+    border-radius: 5px;
+}
+
+.bet-spot:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px #0f0;
+}
+
+.red { background: linear-gradient(145deg, #ff3e3e, #cc3232); color: #fff; }
+.black { background: linear-gradient(145deg, #4a4a4a, #2c2c2c); color: #fff; }
+.green { background: linear-gradient(145deg, #2ecc71, #27ae60); color: #fff; }
+
+#controls {
+    margin-top: 30px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+input, select, button {
+    margin: 5px;
+    padding: 12px 20px;
+    font-size: 1.1em;
+    border: none;
+    border-radius: 8px;
+    background: #2c3e50;
+    color: #ecf0f1;
+    transition: all 0.3s;
+}
+
+button {
+    background: linear-gradient(145deg, #27ae60, #2ecc71);
+    color: #fff;
+    cursor: pointer;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+button:hover { 
+    background: linear-gradient(145deg, #2ecc71, #27ae60);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(46, 204, 113, 0.4);
+}
+
+button:disabled { 
+    background: #95a5a6; 
+    cursor: not-allowed; 
+    transform: none;
+    box-shadow: none;
+}
+
+#result, #balance, #bet-amount {
+    font-size: 1.8em;
+    margin-top: 25px;
+    text-shadow: 0 0 10px rgba(15, 255, 15, 0.7);
+}
+
+#history {
+    margin-top: 30px;
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 15px;
+    background: rgba(44, 62, 80, 0.7);
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(15, 255, 15, 0.2);
+}
+
+.history-item {
+    margin: 8px 0;
+    padding: 8px;
+    background: rgba(52, 152, 219, 0.3);
+    border-radius: 8px;
+    transition: all 0.3s;
+}
+
+.history-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 10px rgba(15, 255, 15, 0.5);
+}
+
+#jackpot {
+    font-size: 2.5em;
+    color: #f1c40f;
+    text-shadow: 0 0 15px #f1c40f;
+    margin-top: 30px;
+    animation: jackpotPulse 2s infinite alternate;
+}
+
+@keyframes jackpotPulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.05); }
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spin-animation { animation: spin 0.5s linear infinite; }
+
+.achievement {
+    position: fixed;
+    top: 20px;
+    right: -300px;
+    background: rgba(46, 204, 113, 0.9);
+    color: #fff;
+    padding: 15px 25px;
+    border-radius: 8px;
+    transition: right 0.5s;
+    font-size: 1.2em;
+    box-shadow: 0 0 20px rgba(46, 204, 113, 0.5);
+}
+
+.achievement.show {
+    right: 20px;
+}
+
+#wallet-connect {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 25px;
+    background: linear-gradient(145deg, #3498db, #2980b9);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#wallet-connect:hover {
+    background: linear-gradient(145deg, #2980b9, #3498db);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
+#wallet-status {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    font-size: 1em;
+    color: #2ecc71;
+}
+
+.wallet-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.wallet-modal-content {
+    background: #2c2c2c;
+    margin: 15% auto;
+    padding: 20px;
+    border-radius: 10px;
+    width: 300px;
+    color: #ecf0f1;
+    text-align: left;
+}
+
+.wallet-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.wallet-modal-title {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+.wallet-close {
+    color: #aaa;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.wallet-close:hover,
+.wallet-close:focus {
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.wallet-option {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: #3a3a3a;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.wallet-option:hover {
+    background: #4a4a4a;
+}
+
+.wallet-option img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.wallet-description {
+    font-size: 0.9em;
+    color: #888;
+    margin-top: 20px;
+}
+
+.get-wallet-btn {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.get-wallet-btn:hover {
+    background: #2980b9;
+}
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>NEARVIDIA Ultimate Roulette Experience</h1>
+    <div id="game-area">
+        <div id="roulette-wheel">
+            <svg id="wheel" viewBox="0 0 100 100">
+                <!-- Roulette wheel segments will be added here via JavaScript -->
+            </svg>
+            <div id="ball"></div>
+        </div>
+        <div id="betting-board">
+            <!-- Betting spots will be added here via JavaScript -->
+        </div>
+    </div>
+    <div id="controls">
+        <input type="number" id="bet-amount-input" placeholder="Bet Amount" min="0" step="0.01">
+        <select id="currency">
+            <option value="NEAR">NEAR</option>
+            <option value="NEARVIDIA">NEARVIDIA</option>
+            <option value="USMeme">USMeme</option>
+            <option value="USDC">USDC</option>
+        </select>
+        <button id="spin-button">SPIN</button>
+        <button id="clear-bets">CLEAR BETS</button>
+        <button id="double-bets">DOUBLE BETS</button>
+    </div>
+    <div id="balance">Balance: 1000 NEAR</div>
+    <div id="bet-amount">Total Bet: 0 NEAR</div>
+    <div id="result"></div>
+    <div id="jackpot">Jackpot: 10000 NEAR</div>
+    <div id="history">
+        <h3>Recent Spins</h3>
+        <!-- History items will be added here via JavaScript -->
+    </div>
+</div>
+
+<button id="wallet-connect">Connect Wallet</button>
+<div id="wallet-status"></div>
+
+<div class="achievement" id="achievement">
+    <!-- Achievement text will be set via JavaScript -->
+</div>
+
+<div id="wallet-modal" class="wallet-modal">
+    <div class="wallet-modal-content">
+        <div class="wallet-modal-header">
+            <span class="wallet-modal-title">Connect Your Wallet</span>
+            <span class="wallet-close">&times;</span>
+        </div>
+        <div class="wallet-option" id="here-wallet">
+            <img src="https://herewallet.app/favicon-32x32.png" alt="Here Wallet">
+            <span>Here Wallet</span>
+        </div>
+        <div class="wallet-option" id="ledger">
+            <img src="https://cdn-icons-png.flaticon.com/512/3178/3178308.png" alt="Ledger">
+            <span>Ledger</span>
+        </div>
+        <div class="wallet-option" id-"my-near-wallet">
+            <img src="https://wallet.near.org/favicon.ico" alt="MyNearWallet">
+            <span>MyNearWallet</span>
+        </div>
+        <div class="wallet-option" id="meteor-wallet">
+            <img src="https://meteorwallet.app/favicon.ico" alt="Meteor Wallet">
+            <span>Meteor Wallet</span>
+        </div>
+        <div class="wallet-option" id="wallet-connect">
+            <img src="https://walletconnect.com/favicon.ico" alt="WalletConnect">
+            <span>WalletConnect</span>
+        </div>
+        <div class="wallet-description">
+            <p>What is a Wallet?</p>
+            <ul>
+                <li>Secure & Manage Your Digital Assets</li>
+                <li>Safely store and transfer your crypto and NFTs.</li>
+                <li>Log In to Any NEAR App</li>
+                <li>No need to create new accounts or credentials. Connect your wallet and you are good to go!</li>
+            </ul>
+        </div>
+        <button class="get-wallet-btn">Get a Wallet</button>
+    </div>
+</div>
+
+<iframe src="https://my.herewallet.app/connector/index.html" allow="usb" style="border: none; z-index: 10000; position: fixed; display: none; top: 0px; left: 0px; width: 100%; height: 100%;"></iframe>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/near-api-js@0.44.2/dist/near-api-js.min.js"></script>
+<script>
+const wheel = document.getElementById('wheel');
+const ball = document.getElementById('ball');
+const spinButton = document.getElementById('spin-button');
+const betAmountInput =  document.getElementById('bet-amount-input');
+const clearBetsButton = document.getElementById('clear-bets');
+const doubleBetsButton = document.getElementById('double-bets');
+const bettingBoard = document.getElementById('betting-board');
+const balanceDisplay = document.getElementById('balance');
+const betAmountDisplay = document.getElementById('bet-amount');
+const resultDisplay = document.getElementById('result');
+const historyContainer = document.getElementById('history');
+const currencySelect = document.getElementById('currency');
+const jackpotDisplay = document.getElementById('jackpot');
+const achievementDisplay = document.getElementById('achievement');
+const walletConnectButton = document.getElementById('wallet-connect');
+const walletStatusDisplay = document.getElementById('wallet-status');
+const walletModal = document.getElementById('wallet-modal');
+const walletCloseButton = document.querySelector('.wallet-close');
+const getWalletButton = document.querySelector('.get-wallet-btn');
+
+let balance = 1000;
+let currentBets = {};
+let totalBetAmount = 0;
+let spinning = false;
+let walletConnected = false;
+
+const numbers = [
+    0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36,
+    11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9,
+    22, 18, 29, 7, 28, 12, 35, 3, 26
+];
+
+const colorMap = {
+    0: 'green',
+    32: 'red', 15: 'black', 19: 'red', 4: 'black', 21: 'red', 2: 'black', 25: 'red',
+    17: 'black', 34: 'red', 6: 'black', 27: 'red', 13: 'black', 36: 'red',
+    11: 'black', 30: 'red', 8: 'black', 23: 'red', 10: 'black', 5: 'red',
+    24: 'black', 16: 'red', 33: 'black', 1: 'red', 20: 'black', 14: 'red',
+    31: 'black', 9: 'red', 22: 'black', 18: 'red', 29: 'black', 7: 'red',
+    28: 'black', 12: 'red', 35: 'black', 3: 'red', 26: 'black'
+};
+
+// Create roulette wheel
+numbers.forEach((number, index) => {
+    const segment = document.createElementNS("http://www.w3.org/2000/svg", "path");
+    const angle = index * (360 / numbers.length);
+    const startAngle = angle * (Math.PI / 180);
+    const endAngle = (angle + (360 / numbers.length)) * (Math.PI / 180);
+    const x1 = 50 + 48 * Math.cos(startAngle);
+    const y1 = 50 + 48 * Math.sin(startAngle);
+    const x2 = 50 + 48 * Math.cos(endAngle);
+    const y2 = 50 + 48 * Math.sin(endAngle);
+    const largeArcFlag = (360 / numbers.length) > 180 ? 1 : 0;
+    
+    segment.setAttribute("d", `M 50 50 L ${x1} ${y1} A 48 48 0 ${largeArcFlag} 1 ${x2} ${y2} Z`);
+    segment.setAttribute("fill", colorMap[number]);
+    segment.setAttribute("stroke", "#fff");
+    segment.setAttribute("stroke-width", "0.5");
+    
+    wheel.appendChild(segment);
+    
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    const textAngle = (angle + (360 / numbers.length) / 2) * (Math.PI / 180);
+    const textX = 50 + 40 * Math.cos(textAngle);
+    const textY = 50 + 40 * Math.sin(textAngle);
+    
+    text.setAttribute("x", textX);
+    text.setAttribute("y", textY);
+    text.setAttribute("fill", "#fff");
+    text.setAttribute("font-size", "6");
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "middle");
+    text.textContent = number;
+    
+    wheel.appendChild(text);
+});
+
+// Create betting board
+const bettingSpots = [
+    '0', '3', '6', '9', '12', '15', '18', '21', '24', '27', '30', '33', '36', '2to1',
+    ' ', '2', '5', '8', '11', '14', '17', '20', '23', '26', '29', '32', '35', '2to1',
+    ' ', '1', '4', '7', '10', '13', '16', '19', '22', '25', '28', '31', '34', '2to1',
+    '1st12', '2nd12', '3rd12',
+    '1to18', 'even', 'red', 'black', 'odd', '19to36'
+];
+
+bettingSpots.forEach(spot => {
+    const spotElement = document.createElement('div');
+    spotElement.className = `bet-spot ${colorMap[spot] || ''}`;
+    spotElement.textContent = spot;
+    spotElement.onclick = () => placeBet(spot);
+    bettingBoard.appendChild(spotElement);
+});
+
+function placeBet(spot) {
+    if (spinning) return;
+    
+    const betAmount = parseFloat(betAmountInput.value);
+    if (isNaN(betAmount) || betAmount <= 0) {
+        alert('Please enter a valid bet amount.');
+        return;
+    }
+    
+    if (betAmount > balance) {
+        alert('Insufficient balance.');
+        return;
+    }
+    
+    currentBets[spot] = (currentBets[spot] || 0) + betAmount;
+    balance -= betAmount;
+    totalBetAmount += betAmount;
+    
+    updateDisplay();
+}
+
+function updateDisplay() {
+    balanceDisplay.textContent = `Balance: ${balance.toFixed(2)} ${currencySelect.value}`;
+    betAmountDisplay.textContent = `Total Bet: ${totalBetAmount.toFixed(2)} ${currencySelect.value}`;
+}
+
+function clearBets() {
+    if (spinning) return;
+    
+    balance += totalBetAmount;
+    currentBets = {};
+    totalBetAmount = 0;
+    
+    updateDisplay();
+}
+
+function doubleBets() {
+    if (spinning) return;
+    
+    const doubledBets = {};
+    let doubledTotal = 0;
+    
+    for (const [spot, amount] of Object.entries(currentBets)) {
+        const doubledAmount = amount * 2;
+        if (balance >= doubledAmount) {
+            doubledBets[spot] = doubledAmount;
+            balance -= amount;
+            doubledTotal += doubledAmount;
+        } else {
+            alert('Insufficient balance to double all bets.');
+            return;
+        }
+    }
+    
+    currentBets = doubledBets;
+    totalBetAmount = doubledTotal;
+    
+    updateDisplay();
+}
+
+function spin() {
+    if (spinning || totalBetAmount === 0) return;
+    
+    spinning = true;
+    spinButton.disabled = true;
+    
+    const randomNumber = Math.floor(Math.random() * 37);
+    const rotations = 8;
+    const segmentAngle = 360 / numbers.length;
+    const extraSpins = Math.random() * segmentAngle;
+    const finalAngle = -(rotations * 360 + numbers.indexOf(randomNumber) * segmentAngle + extraSpins);
+    
+    gsap.to(wheel, {
+        rotation: finalAngle,
+        duration: 8,
+        ease: "power2.out"
+    });
+    
+    gsap.to(ball, {
+        rotation: `${720 + Math.random() * 360}`,
+        duration: 8,
+        ease: "power4.out"
+    });
+    
+    setTimeout(() => {
+        const result = numbers[randomNumber];
+        resultDisplay.textContent = `Result: ${result} ${colorMap[result]}`;
+        
+        let winnings = 0;
+        
+        for (const [spot, amount] of Object.entries(currentBets)) {
+            if (spot === result.toString()) {
+                winnings += amount * 35;
+            } else if ((spot === 'red' && colorMap[result] === 'red') ||
+                       (spot === 'black' && colorMap[result] === 'black')) {
+                winnings += amount * 2;
+            } else if ((spot === 'even' && result % 2 === 0 && result !== 0) ||
+                       (spot === 'odd' && result % 2 === 1)) {
+                winnings += amount * 2;
+            } else if ((spot === '1to18' && result >= 1 && result <= 18) ||
+                       (spot === '19to36' && result >= 19 && result <= 36)) {
+                winnings += amount * 2;
+            } else if ((spot === '1st12' && result >= 1 && result <= 12) ||
+                       (spot === '2nd12' && result >= 13 && result <= 24) ||
+                       (spot === '3rd12' && result >= 25 && result <= 36)) {
+                winnings += amount * 3;
+            } else if (spot === '2to1' && (result - 1) % 3 === 2) {
+                winnings += amount * 3;
+            }
+        }
+        
+        balance += winnings;
+        
+        if (winnings > totalBetAmount) {
+            resultDisplay.textContent += ` - You won ${(winnings - totalBetAmount).toFixed(2)} ${currencySelect.value}!`;
+            showAchievement(`Won ${(winnings - totalBetAmount).toFixed(2)} ${currencySelect.value}!`);
+        } else if (winnings < totalBetAmount) {
+            resultDisplay.textContent += ` - You lost ${(totalBetAmount - winnings).toFixed(2)} ${currencySelect.value}.`;
+        } else {
+            resultDisplay.textContent += " - It's a tie!";
+        }
+        
+        addToHistory(result);
+        currentBets = {};
+        totalBetAmount = 0;
+        updateDisplay();
+        
+        spinning = false;
+        spinButton.disabled = false;
+    }, 8000);
+}
+
+function addToHistory(result) {
+    const historyItem = document.createElement('div');
+    historyItem.className = 'history-item';
+    historyItem.textContent = `${result} ${colorMap[result]}`;
+    historyContainer.insertBefore(historyItem, historyContainer.firstChild);
+    
+    if (historyContainer.children.length > 10) {
+        historyContainer.removeChild(historyContainer.lastChild);
+    }
+}
+
+function showAchievement(text) {
+    achievementDisplay.textContent = text;
+    achievementDisplay.classList.add('show');
+    setTimeout(() => {
+        achievementDisplay.classList.remove('show');
+    }, 3000);
+}
+
+spinButton.addEventListener('click', spin);
+clearBetsButton.addEventListener('click', clearBets);
+doubleBetsButton.addEventListener('click', doubleBets);
+
+// Wallet connection
+walletConnectButton.addEventListener('click', () => {
+    walletModal.style.display = 'block';
+});
+
+walletCloseButton.addEventListener('click', () => {
+    walletModal.style.display = 'none';
+});
+
+window.addEventListener('click', (event) => {
+    if (event.target == walletModal) {
+        walletModal.style.display = 'none';
+    }
+});
+
+const walletOptions = document.querySelectorAll('.wallet-option');
+walletOptions.forEach(option => {
+    option.addEventListener('click', () => {
+        connectWallet(option.id);
+    });
+});
+
+getWalletButton.addEventListener('click', () => {
+    window.open('https://wallet.near.org/', '_blank');
+});
+
+async function connectWallet(walletType) {
+    // This is a simplified example. In a real application, you would use the NEAR API
+    // to connect to the selected wallet type.
+    console.log(`Connecting to ${walletType}...`);
+    
+    // Simulating a connection process
+    walletStatusDisplay.textContent = 'Connecting...';
+    
+    // This is where you would typically use the NEAR API to connect
+    // For this example, we'll just simulate a successful connection after a short delay
+    setTimeout(() => {
+        walletConnected = true;
+        walletStatusDisplay.textContent = 'Connected';
+        walletConnectButton.textContent = 'Disconnect';
+        walletModal.style.display = 'none';
+        
+        // Here you would typically fetch the user's actual balance
+        balance = 1000; // Example balance
+        updateDisplay();
+    }, 2000);
+}
+
+// Initialize
+updateDisplay();
+</script>
+</body>
+</html>
