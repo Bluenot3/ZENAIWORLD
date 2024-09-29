@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ZEN AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --primary-color: #4A90E2;
+            --background-color: #f0f0f0;
+            --text-color: #333;
+            --border-color: #ccc;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1em;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin: 0;
+            font-size: 2em;
+            font-weight: 300;
+        }
+        main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        #editor, #preview {
+            flex: 1;
+            box-sizing: border-box;
+            overflow: auto;
+            transition: flex 0.3s ease;
+        }
+        #editor {
+            padding: 1em;
+            background-color: white;
+            border-right: 1px solid var(--border-color);
+        }
+        #preview {
+            background-color: white;
+        }
+        textarea {
+            width: 100%;
+            height: 100%;
+            resize: none;
+            box-sizing: border-box;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            border: none;
+            outline: none;
+            background-color: white;
+            padding: 0.5em;
+            color: var(--text-color);
+        }
+        #resizeHandle {
+            width: 5px;
+            background-color: var(--border-color);
+            cursor: col-resize;
+        }
+        #toggleView {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+        @media (max-width: 768px) {
+            main {
+                flex-direction: column;
+            }
+            #editor, #preview {
+                flex: none;
+                height: 50vh;
+            }
+            #editor {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            #toggleView {
+                display: block;
+            }
+            #resizeHandle {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>ZEN AI</h1>
+    </header>
+    <main>
+        <div id="editor">
+            <textarea id="code" spellcheck="false">
+<html>
+<head>
+    <title>Welcome to ZEN AI</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        h1 { color: #4A90E2; }
+    </style>
+</head>
+<body>
+    <h1>Hello, ZEN AI!</h1>
+    <p>Edit the code in the editor to see the preview here.</p>
+    <!-- You can embed AI in an iframe like this: -->
+    <!--
+    <iframe src="https://example-ai-tool.com/widget" width="600" height="400"></iframe>
+    -->
+</body>
+</html>
+            </textarea>
+        </div>
+        <div id="resizeHandle"></div>
+        <div id="preview">
+            <iframe id="previewFrame" style="width:100%; height:100%; border:0;"></iframe>
+        </div>
+    </main>
+    <button id="toggleView">Toggle View</button>
+
+    <script>
+        function updatePreview() {
+            var code = document.getElementById('code').value;
+            var previewFrame = document.getElementById('previewFrame').contentWindow.document;
+            previewFrame.open();
+            previewFrame.write(code);
+            previewFrame.close();
+        }
+
+        window.onload = function() {
+            var codeEditor = document.getElementById('code');
+            var editorDiv = document.getElementById('editor');
+            var previewDiv = document.getElementById('preview');
+            var resizeHandle = document.getElementById('resizeHandle');
+            var toggleViewBtn = document.getElementById('toggleView');
+            var isResizing = false;
+            var isMobile = window.innerWidth <= 768;
+
+            codeEditor.addEventListener('input', updatePreview);
+            updatePreview();
+
+            // Resize functionality
+            resizeHandle.addEventListener('mousedown', function(e) {
+                isResizing = true;
+                document.addEventListener('mousemove', handleMouseMove);
+                document.addEventListener('mouseup', stopResize);
+            });
+
+            function handleMouseMove(e) {
+                if (!isResizing) return;
+                var containerWidth = document.body.clientWidth;
+                var newWidth = (e.clientX / containerWidth) * 100;
+                editorDiv.style.flex = `0 0 ${newWidth}%`;
+                previewDiv.style.flex = `0 0 ${100 - newWidth}%`;
+            }
+
+            function stopResize() {
+                isResizing = false;
+                document.removeEventListener('mousemove', handleMouseMove);
+            }
+
+            // Toggle view for mobile
+            toggleViewBtn.addEventListener('click', function() {
+                if (editorDiv.style.display === 'none') {
+                    editorDiv.style.display = 'block';
+                    previewDiv.style.display = 'none';
+                    toggleViewBtn.textContent = 'Show Preview';
+                } else {
+                    editorDiv.style.display = 'none';
+                    previewDiv.style.display = 'block';
+                    toggleViewBtn.textContent = 'Show Editor';
+                }
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (window.innerWidth <= 768 && !isMobile) {
+                    isMobile = true;
+                    editorDiv.style.flex = previewDiv.style.flex = 'none';
+                    editorDiv.style.height = previewDiv.style.height = '50vh';
+                    editorDiv.style.display = previewDiv.style.display = 'block';
+                } else if (window.innerWidth > 768 && isMobile) {
+                    isMobile = false;
+                    editorDiv.style.flex = previewDiv.style.flex = '1';
+                    editorDiv.style.height = previewDiv.style.height = 'auto';
+                    editorDiv.style.display = previewDiv.style.display = 'block';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
