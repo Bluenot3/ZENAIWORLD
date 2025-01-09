@@ -1,0 +1,668 @@
+<html>
+<head>
+  <base href="/">
+  <title>AI API Performance Analytics Dashboard</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      --primary: #2a2b5f;
+      --secondary: #6c63ff;
+      --success: #00c853;
+      --danger: #ff3d00;
+      --warning: #ffd600;
+      --info: #00b0ff;
+      --dark: #1a1a2e;
+      --light: #f5f5f5;
+      --font-main: 'Inter', sans-serif;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--dark);
+      color: var(--light);
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 250px 1fr;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      background: rgba(42, 43, 95, 0.95);
+      padding: 2rem;
+      border-right: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .logo svg {
+      width: 40px;
+      height: 40px;
+    }
+
+    .logo h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .nav-item {
+      padding: 1rem;
+      margin: 0.5rem 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .nav-item:hover {
+      background: rgba(108, 99, 255, 0.2);
+    }
+
+    .nav-item.active {
+      background: var(--secondary);
+    }
+
+    .main-content {
+      padding: 2rem;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .search {
+      position: relative;
+      width: 300px;
+    }
+
+    .search input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      padding-left: 2.5rem;
+      border-radius: 8px;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: var(--light);
+    }
+
+    .search svg {
+      position: absolute;
+      left: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      padding: 1.5rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .chart-container {
+      background: rgba(255,255,255,0.05);
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .model-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .model-card {
+      background: rgba(255,255,255,0.05);
+      padding: 1.5rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .model-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    .custom-theme {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: var(--secondary);
+      padding: 1rem;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    .loading {
+      animation: pulse 1.5s infinite;
+    }
+
+    .settings-panel {
+      background: rgba(255,255,255,0.05);
+      padding: 2rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+
+    .api-key-form {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      max-width: 600px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .form-group input, .form-group select {
+      padding: 0.8rem;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: var(--light);
+    }
+
+    .upload-area {
+      border: 2px dashed rgba(255,255,255,0.2);
+      padding: 2rem;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .upload-area:hover {
+      border-color: var(--secondary);
+    }
+
+    .btn {
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px;
+      border: none;
+      background: var(--secondary);
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon"></script>
+</head>
+<body>
+
+<div class="dashboard">
+  <aside class="sidebar">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+      <h1>AI Analytics</h1>
+    </div>
+    
+    <nav>
+      <div class="nav-item active">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="7" height="7"/>
+          <rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/>
+          <rect x="3" y="14" width="7" height="7"/>
+        </svg>
+        Dashboard
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 20V10M18 20V4M6 20v-4"/>
+        </svg>
+        Analytics
+      </div>
+      <div class="nav-item">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+        </svg>
+        Settings
+      </div>
+    </nav>
+  </aside>
+
+  <main class="main-content">
+    <header class="header">
+      <div class="search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" placeholder="Search APIs, models...">
+      </div>
+      
+      <div class="time-range">
+        <select id="timeRange" class="form-select">
+          <option value="1h">Last Hour</option>
+          <option value="24h">Last 24 Hours</option>
+          <option value="7d">Last 7 Days</option>
+          <option value="30d">Last 30 Days</option>
+        </select>
+      </div>
+    </header>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Total API Calls</h3>
+        <h2 id="totalCalls">Loading...</h2>
+        <p class="trend positive">&#x2191; 12.5%</p>
+      </div>
+      <div class="stat-card">
+        <h3>Average Latency</h3>
+        <h2 id="avgLatency">Loading...</h2>
+        <p class="trend negative">&#x2193; 3.2%</p>
+      </div>
+      <div class="stat-card">
+        <h3>Success Rate</h3>
+        <h2 id="successRate">Loading...</h2>
+        <p class="trend positive">&#x2191; 0.8%</p>
+      </div>
+      <div class="stat-card">
+        <h3>Active Models</h3>
+        <h2 id="activeModels">Loading...</h2>
+        <p class="trend neutral">= 0%</p>
+      </div>
+    </div>
+
+    <div class="chart-container">
+      <canvas id="performanceChart"></canvas>
+    </div>
+
+    <div class="settings-panel" id="apiSettings" style="display: none;">
+      <h2>API Settings</h2>
+      <div class="api-key-form">
+        <div class="form-group">
+          <label>Select AI Model</label>
+          <select id="modelSelect">
+            <option value="gpt4">GPT-4</option>
+            <option value="gpt35">GPT-3.5 Turbo</option>
+            <option value="claude2">Claude 2</option>
+            <option value="claude-instant">Claude Instant</option>
+            <option value="palm2">PaLM 2</option>
+            <option value="llama2">Llama 2</option>
+            <option value="cohere">Cohere Command</option>
+            <option value="stable-diffusion">Stable Diffusion XL</option>
+            <option value="dalle3">DALL-E 3</option>
+            <option value="custom">Custom Model</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label>API Key</label>
+          <input type="password" id="apiKey" placeholder="Enter your API key">
+        </div>
+        
+        <div class="form-group">
+          <label>Bulk Upload API Keys</label>
+          <div class="upload-area" id="uploadArea">
+            <p>Drag and drop CSV/Excel file or click to upload</p>
+            <input type="file" id="fileUpload" accept=".csv,.xlsx" style="display: none;">
+          </div>
+        </div>
+        
+        <button class="btn" id="saveApiSettings">Save Settings</button>
+      </div>
+    </div>
+
+    <div class="model-grid" id="modelGrid">
+      <!-- Model cards will be dynamically inserted here -->
+    </div>
+  </main>
+</div>
+
+<div class="custom-theme" id="themeToggle">
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <circle cx="12" cy="12" r="5"/>
+    <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+  </svg>
+</div>
+
+<script>const API_ENDPOINTS = {
+  PERFORMANCE: '/api/ai_completion',
+  MODELS: '/api/models',
+  STATS: '/api/stats'
+};
+class AIAnalytics {
+  constructor() {
+    this.chart = null;
+    this.themeColors = {
+      light: {
+        primary: '#2a2b5f',
+        secondary: '#6c63ff',
+        background: '#f5f5f5',
+        text: '#1a1a2e'
+      },
+      dark: {
+        primary: '#2a2b5f',
+        secondary: '#6c63ff',
+        background: '#1a1a2e',
+        text: '#f5f5f5'
+      }
+    };
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+      document.body.classList.add('light-theme');
+    }
+    this.init();
+  }
+  async init() {
+    this.setupEventListeners();
+    this.setupApiSettings();
+    await this.loadData();
+    this.initializeChart();
+  }
+  setupEventListeners() {
+    document.getElementById('timeRange').addEventListener('change', () => this.loadData());
+    document.getElementById('themeToggle').addEventListener('click', () => this.toggleTheme());
+  }
+  async loadData() {
+    try {
+      const response = await fetch('/api/ai_completion', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          prompt: `Generate mock AI model performance data for the dashboard including latest AI models.
+          
+          <typescript-interface>
+          interface PerformanceData {
+            totalCalls: number;
+            avgLatency: number;
+            successRate: number;
+            activeModels: number;
+            models: Array<{
+              name: string;
+              performance: number;
+              status: string;
+              latency: number;
+              version: string;
+              lastUpdated: string;
+            }>;
+            timeSeriesData: Array<{
+              timestamp: string;
+              value: number;
+            }>;
+          }
+          </typescript-interface>
+          
+          <example>
+          {
+            "totalCalls": 1234567,
+            "avgLatency": 245,
+            "successRate": 99.8,
+            "activeModels": 15,
+            "models": [
+              {
+                "name": "GPT-4",
+                "performance": 98.5,
+                "status": "operational",
+                "latency": 234,
+                "version": "latest",
+                "lastUpdated": "2023-10-15"
+              },
+              {
+                "name": "Claude 2",
+                "performance": 97.8,
+                "status": "operational",
+                "latency": 188,
+                "version": "2.1",
+                "lastUpdated": "2023-10-14"
+              },
+              {
+                "name": "DALL-E 3",
+                "performance": 99.1,
+                "status": "operational",
+                "latency": 456,
+                "version": "latest",
+                "lastUpdated": "2023-10-15"
+              }
+            ],
+            "timeSeriesData": [
+              {
+                "timestamp": "2023-10-15T00:00:00Z",
+                "value": 1234
+              }
+            ]
+          }
+          </example>`,
+          data: document.getElementById('timeRange').value
+        })
+      });
+      const data = await response.json();
+      this.updateDashboard(data);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  }
+  updateDashboard(data) {
+    document.getElementById('totalCalls').textContent = this.formatNumber(data.totalCalls);
+    document.getElementById('avgLatency').textContent = `${data.avgLatency}ms`;
+    document.getElementById('successRate').textContent = `${data.successRate}%`;
+    document.getElementById('activeModels').textContent = data.activeModels;
+    this.updateModelGrid(data.models);
+    this.updateChart(data.timeSeriesData);
+  }
+  updateModelGrid(models) {
+    const grid = document.getElementById('modelGrid');
+    grid.innerHTML = models.map(model => `
+      <div class="model-card">
+        <h3>${model.name}</h3>
+        <div class="model-stats">
+          <p>Performance: ${model.performance}%</p>
+          <p>Status: <span class="status ${model.status.toLowerCase()}">${model.status}</span></p>
+          <p>Latency: ${model.latency}ms</p>
+          <p>Version: ${model.version}</p>
+          <p>Last Updated: ${model.lastUpdated}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+  initializeChart() {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    this.chart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'API Performance',
+          data: [],
+          borderColor: this.themeColors.dark.secondary,
+          tension: 0.4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            labels: {
+              color: this.themeColors.dark.text
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: {
+              color: 'rgba(255,255,255,0.1)'
+            },
+            ticks: {
+              color: this.themeColors.dark.text
+            }
+          },
+          x: {
+            grid: {
+              color: 'rgba(255,255,255,0.1)'
+            },
+            ticks: {
+              color: this.themeColors.dark.text
+            }
+          }
+        }
+      }
+    });
+  }
+  updateChart(timeSeriesData) {
+    if (!this.chart) return;
+    this.chart.data.labels = timeSeriesData.map(d => {
+      const date = new Date(d.timestamp);
+      return date.toLocaleTimeString();
+    });
+    this.chart.data.datasets[0].data = timeSeriesData.map(d => d.value);
+    this.chart.update();
+  }
+  formatNumber(num) {
+    return new Intl.NumberFormat().format(num);
+  }
+  toggleTheme() {
+    document.body.classList.toggle('light-theme');
+    this.updateChartTheme();
+    localStorage.setItem('theme', document.body.classList.contains('light-theme') ? 'light' : 'dark');
+  }
+  updateChartTheme() {
+    if (!this.chart) return;
+    const isDark = !document.body.classList.contains('light-theme');
+    const colors = isDark ? this.themeColors.dark : this.themeColors.light;
+    this.chart.options.scales.y.grid.color = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+    this.chart.options.scales.x.grid.color = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+    this.chart.options.scales.y.ticks.color = colors.text;
+    this.chart.options.scales.x.ticks.color = colors.text;
+    this.chart.options.plugins.legend.labels.color = colors.text;
+    this.chart.data.datasets[0].borderColor = colors.secondary;
+    this.chart.update();
+  }
+  setupApiSettings() {
+    const settingsNav = document.querySelector('.nav-item:last-child');
+    settingsNav.addEventListener('click', () => this.toggleSettingsPanel());
+    const uploadArea = document.getElementById('uploadArea');
+    const fileUpload = document.getElementById('fileUpload');
+    uploadArea.addEventListener('click', () => fileUpload.click());
+    uploadArea.addEventListener('dragover', e => {
+      e.preventDefault();
+      uploadArea.style.borderColor = 'var(--secondary)';
+    });
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.style.borderColor = 'rgba(255,255,255,0.2)';
+    });
+    uploadArea.addEventListener('drop', e => {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      this.handleFileUpload(files[0]);
+    });
+    fileUpload.addEventListener('change', e => {
+      this.handleFileUpload(e.target.files[0]);
+    });
+    document.getElementById('saveApiSettings').addEventListener('click', () => this.saveApiSettings());
+  }
+  toggleSettingsPanel() {
+    const mainSections = ['modelGrid', 'apiSettings'];
+    mainSections.forEach(id => {
+      const element = document.getElementById(id);
+      if (element) {
+        element.style.display = element.id === 'apiSettings' ? element.style.display === 'none' ? 'block' : 'none' : element.style.display === 'none' ? 'grid' : 'none';
+      }
+    });
+  }
+  async handleFileUpload(file) {
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('/api/upload-keys', {
+        method: 'POST',
+        body: formData
+      });
+      if (response.ok) {
+        alert('API keys uploaded successfully');
+      } else {
+        throw new Error('Upload failed');
+      }
+    } catch (error) {
+      console.error('Error uploading file:', error);
+      alert('Error uploading file. Please try again.');
+    }
+  }
+  async saveApiSettings() {
+    const modelSelect = document.getElementById('modelSelect');
+    const apiKey = document.getElementById('apiKey');
+    try {
+      const response = await fetch('/api/save-api-key', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: modelSelect.value,
+          apiKey: apiKey.value
+        })
+      });
+      if (response.ok) {
+        alert('API settings saved successfully');
+        await this.loadData();
+      } else {
+        throw new Error('Failed to save settings');
+      }
+    } catch (error) {
+      console.error('Error saving API settings:', error);
+      alert('Error saving settings. Please try again.');
+    }
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const analytics = new AIAnalytics();
+});</script>
+
+</body>
+</html>
